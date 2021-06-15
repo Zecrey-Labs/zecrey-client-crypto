@@ -29,10 +29,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MetaMask/obs-store.git"
+    "url": "git+https://github.com/Zecrey-Labs/zecrey-client-crypto.git"
   },
   "bugs": {
-    "url": "https://github.com/MetaMask/obs-store/issues"
+    "url": "https://github.com/Zecrey-Labs/zecrey-client-crypto/issues"
   },
-  "homepage": "https://github.com/MetaMask/obs-store#readme"
+  "homepage": "https://github.com/Zecrey-Labs/zecrey-client-crypto#readme"
 }
