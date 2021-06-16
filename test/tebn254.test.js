@@ -1,5 +1,5 @@
 const test = require("tape");
-const { randomValue, zeroPoint, newPoint, addPoint, equal, negPoint } = require("../dist/ecc/tebn254");
+const { randomValue, zeroPoint, newPoint, addPoint, equal, negPoint, scalarBaseMul, Generator } = require("../dist/ecc/tebn254");
 
 test("randomValue", function (t) {
     t.plan(1);
@@ -21,6 +21,19 @@ test("addPoint", function (t) {
     t.equal(equal(addPoint(a, b), c), true, 'return expected addPoint result');
 });
 
+test("scalarMul", function (t) {
+    t.plan(1);
+    const r1 = BigInt(3);
+    const r2 = BigInt(9);
+    const r3 = BigInt(12);
+    const r4 = BigInt(-3);
+    const a = scalarBaseMul(r1);
+    const b = scalarBaseMul(r2);
+    const ab = addPoint(a, b);
+    const c = scalarBaseMul(r3);
+    t.equal(equal(ab, c), true, 'return expected scalarMul result');
+});
+
 test("negPoint", function (t) {
     t.plan(1);
     const G = newPoint('9671717474070082183213120605117400219616337014328744928644933853176787189663', '16950150798460657717958625567821834550301663161624707787222815936182638968203');
@@ -28,3 +41,5 @@ test("negPoint", function (t) {
 
     t.equal(equal(negPoint(G), GNeg), true, 'return expected negPoint result');
 });
+
+
