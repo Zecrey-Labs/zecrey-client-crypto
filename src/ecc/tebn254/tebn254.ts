@@ -3,17 +3,22 @@ import * as bigintCryptoUtils from 'bigint-crypto-utils';
 var ffjavascript = require('ffjavascript');
 
 const F1Field = ffjavascript.F1Field;
-const Scalar = ffjavascript.Scalar;
+export const Scalar = ffjavascript.Scalar;
 const utils = ffjavascript.utils;
 
 
 const p = Scalar.fromString("21888242871839275222246405745257275088548364400416034343698204186575808495617");
 const F = new F1Field(p);
 
-export const Generator = {
+export const G = {
     X: F.e("9671717474070082183213120605117400219616337014328744928644933853176787189663"),
     Y: F.e("16950150798460657717958625567821834550301663161624707787222815936182638968203")
 };
+
+export const H = {
+    X: F.e('19843132008705182383524593512377323181208938069977784352990768375941636129043'),
+    Y: F.e('1424962496956403694866513262744390851176749772810717397211030275710635902220'),
+}
 
 export const Order = Scalar.fromString("2736030358979909402780800718157159386076813972158567259200215660948447373041");
 const A = F.neg(F.one);
@@ -62,7 +67,7 @@ export const addPoint = (a: Point, b: Point): Point => {
 }
 
 export const scalarBaseMul = (e: BigInt): Point => {
-    return scalarMul(Generator, e);
+    return scalarMul(G, e);
 }
 
 export const scalarMul = (base: Point, e: BigInt): Point => {
