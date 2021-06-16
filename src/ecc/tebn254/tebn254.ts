@@ -15,7 +15,7 @@ export const Generator = {
     Y: F.e("16950150798460657717958625567821834550301663161624707787222815936182638968203")
 };
 
-const subOrder = Scalar.fromString("2736030358979909402780800718157159386076813972158567259200215660948447373041");
+export const Order = Scalar.fromString("2736030358979909402780800718157159386076813972158567259200215660948447373041");
 const A = F.neg(F.one);
 const D = F.e("12181644023421730124874158521699555681764249180949974110617291017600649128846");
 
@@ -90,7 +90,7 @@ export const scalarMul = (base: Point, e: BigInt): Point => {
 
 export const isInSubgroup = (P: Point): boolean => {
     if (!isInCurve(P)) return false;
-    const res = scalarMul(P, subOrder);
+    const res = scalarMul(P, Order);
     return (F.isZero(res.X) && F.eq(res.Y, F.one));
 }
 
@@ -114,7 +114,7 @@ export const marshalPoint = (P: Point): Buffer => {
     return buff;
 }
 
-export const unmarshalPoint = (_buff: Buffer): Point => {
+export const unmarshalPoint = (_buff: Buffer): Point | null => {
     const buff = Buffer.from(_buff);
     let sign = false;
     const P = zeroPoint();
@@ -123,7 +123,7 @@ export const unmarshalPoint = (_buff: Buffer): Point => {
         buff[31] = buff[31] & 0x7F;
     }
     P.Y = utils.leBuff2int(buff);
-    if (Scalar.gt(P.Y, p)) return P;
+    if (Scalar.gt(P.Y, p)) return null;
 
     const y2 = F.square(P.Y);
 
@@ -131,7 +131,7 @@ export const unmarshalPoint = (_buff: Buffer): Point => {
         F.sub(F.one, y2),
         F.sub(A, F.mul(D, y2))));
 
-    if (x == null) return P;
+    if (x == null) return null;
 
     if (sign) x = F.neg(x);
 
@@ -149,6 +149,6 @@ export const equal = (a: Point, b: Point): boolean => {
 }
 
 export const randomValue = (): BigInt => {
-    const r = bigintCryptoUtils.randBetween(subOrder);
+    const r = bigintCryptoUtils.randBetween(Order);
     return r;
 }
