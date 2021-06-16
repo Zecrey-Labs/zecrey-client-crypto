@@ -1,2 +1,3 @@
-export * from "./demo";
-export * from "./ecc";
+export * from './ecc';
+export * from './ffmath';
+export * from './elgamal';
