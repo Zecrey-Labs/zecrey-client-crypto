@@ -26,7 +26,6 @@ test("scalarMul", function (t) {
     const r1 = BigInt(3);
     const r2 = BigInt(9);
     const r3 = BigInt(12);
-    const r4 = BigInt(-3);
     const a = scalarBaseMul(r1);
     const b = scalarBaseMul(r2);
     const ab = addPoint(a, b);
