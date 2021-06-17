@@ -18,11 +18,13 @@
   },
   "license": "ISC",
   "dependencies": {
+    "bigint-conversion": "^2.1.12",
     "bigint-crypto-utils": "^3.0.14",
     "bip39": "^3.0.4",
     "crypto": "^1.0.1",
     "ffjavascript": "^0.2.36",
-    "noble-secp256k1": "^1.2.6"
+    "noble-secp256k1": "^1.2.6",
+    "sha3": "^2.1.4"
   },
   "devDependencies": {
     "@types/node": "^15.12.2",
