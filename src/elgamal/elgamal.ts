@@ -1,4 +1,4 @@
-import { Point, randomValue, scalarMul, scalarBaseMul, G, H, Scalar, addPoint, negPoint, equal, Order } from '../ecc';
+import { Point, randomValue, scalarMul, scalarBaseMul, G, H, Scalar, addPoint, negPoint, equal, Order, zeroPoint } from '../ecc';
 import { commit } from '../commitment';
 import { ffModInverse } from '../ffmath';
 
@@ -41,12 +41,13 @@ export const elgamalDec = (enc: ElGamalEnc, sk: BigInt, Max: number): BigInt | n
     const skInv = ffModInverse(sk, Order);
     const gExpr = scalarMul(enc.CL, skInv);
     const hExpb = addPoint(enc.CR, negPoint(gExpr));
+    const base = H;
+    var current = zeroPoint();
     for (var i = 0; i < Max; i++) {
-        const b = BigInt(i);
-        const hi = scalarMul(H, b);
-        if (equal(hi, hExpb)) {
-            return b;
+        if (equal(current, hExpb)) {
+            return BigInt(i);
         }
+        current = addPoint(current, base);
     }
     return null;
 }
@@ -62,12 +63,14 @@ export const elgamalDecByStart = (enc: ElGamalEnc, sk: BigInt, start: number, Ma
     const skInv = Scalar.modInverse(sk, G);
     const gExpr = scalarMul(enc.CL, skInv);
     const hExpb = addPoint(enc.CR, negPoint(gExpr));
+
+    const base = H;
+    var current = zeroPoint();
     for (var i = start; i < Max; i++) {
-        const b = BigInt(i);
-        const hi = scalarMul(H, b);
-        if (equal(hi, hExpb)) {
-            return b;
+        if (equal(current, hExpb)) {
+            return BigInt(i);
         }
+        current = addPoint(current, base);
     }
     return null;
 }
