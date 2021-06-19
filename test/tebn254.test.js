@@ -1,5 +1,8 @@
 const test = require("tape");
-const { randomValue, zeroPoint, newPoint, addPoint, equal, negPoint, scalarBaseMul, Generator } = require("../dist/ecc/tebn254");
+const BN = require('bn.js');
+const fs = require('fs');
+const { ffMod } = require("../dist/ffmath");
+const { randomValue, zeroPoint, newPoint, Order, addPoint, equal, negPoint, scalarHMul, scalarGMul, G, H, marshalPoint, unmarshalPoint, scalarMul, Scalar } = require("../dist/ecc/tebn254");
 
 test("randomValue", function (t) {
     t.plan(1);
@@ -21,17 +24,17 @@ test("addPoint", function (t) {
     t.equal(equal(addPoint(a, b), c), true, 'return expected addPoint result');
 });
 
-test("scalarMul", function (t) {
-    t.plan(1);
-    const r1 = BigInt(3);
-    const r2 = BigInt(9);
-    const r3 = BigInt(12);
-    const a = scalarBaseMul(r1);
-    const b = scalarBaseMul(r2);
-    const ab = addPoint(a, b);
-    const c = scalarBaseMul(r3);
-    t.equal(equal(ab, c), true, 'return expected scalarMul result');
-});
+// test("scalarMul", function (t) {
+//     t.plan(1);
+//     const r1 = BigInt(3);
+//     const r2 = BigInt(9);
+//     const r3 = BigInt(12);
+//     const a = scalarBaseMul(r1);
+//     const b = scalarBaseMul(r2);
+//     const ab = addPoint(a, b);
+//     const c = scalarBaseMul(r3);
+//     t.equal(equal(ab, c), true, 'return expected scalarMul result');
+// });
 
 test("negPoint", function (t) {
     t.plan(1);
@@ -41,4 +44,22 @@ test("negPoint", function (t) {
     t.equal(equal(negPoint(G), GNeg), true, 'return expected negPoint result');
 });
 
+test("marshalPoint", function (t) {
+    t.plan(1);
+    const G = newPoint('9671717474070082183213120605117400219616337014328744928644933853176787189663', '16950150798460657717958625567821834550301663161624707787222815936182638968203');
 
+    const buf = marshalPoint(G);
+    const T = unmarshalPoint(buf);
+    t.equal(equal(G, T), true, 'marshal works correctly');
+});
+
+test("optimizeScalarMul", function (t) {
+    t.plan(1);
+    // const r = new BN("-348300407859572751224531059670009367222243066181721333720553737811769195386008976808523958246316773613792514408317458283661241884274052776687974869839");
+    // const a = r.mod(Order).add(Order).mod(Order);
+    // const rprime = Scalar.neg(r);
+    // const a = ffMod(rprime, Order);
+    // console.log('a:', a)
+    t.test();
+    // t.equal(equal(R, R2), true, 'hscalar works correctly');
+});

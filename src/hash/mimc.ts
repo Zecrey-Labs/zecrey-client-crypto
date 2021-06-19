@@ -1,11 +1,11 @@
-import { F } from "../ecc";
-import { SHA3 } from 'sha3';
+import {F} from "../ecc";
+import {SHA3} from 'sha3';
 import * as bigintConversion from 'bigint-conversion'
 
 const hash = new SHA3(256);
 
 const SEED = "ZecreyMIMCSeed";
-// 
+//
 const mimcNbRounds = 91;
 // BlockSize size that mimc consumes
 const BlockSize = 32;

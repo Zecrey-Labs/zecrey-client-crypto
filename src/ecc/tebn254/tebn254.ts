@@ -1,6 +1,6 @@
 import * as bigintCryptoUtils from 'bigint-crypto-utils';
 
-var ffjavascript = require('ffjavascript');
+const ffjavascript = require('ffjavascript');
 
 const F1Field = ffjavascript.F1Field;
 export const Scalar = ffjavascript.Scalar;
@@ -30,11 +30,11 @@ export interface Point {
 }
 
 export const zeroPoint = (): Point => {
-    return { X: F.e('0'), Y: F.e('1') };
+    return {X: F.e('0'), Y: F.e('1')};
 }
 
 export const newPoint = (x: string, y: string): Point => {
-    return { X: F.e(x), Y: F.e(y) };
+    return {X: F.e(x), Y: F.e(y)};
 }
 
 export const addPoint = (a: Point, b: Point): Point => {
@@ -45,7 +45,6 @@ export const addPoint = (a: Point, b: Point): Point => {
      res[0] = bigInt((a.X*b.Y + b.X*a.Y) *  bigInt(bigInt("1") + d*a.X*b.X*a.Y*b.Y).inverse(q)).affine(q);
     res[1] = bigInt((a.Y*b.Y - cta*a.X*b.X) * bigInt(bigInt("1") - d*a.X*b.X*a.Y*b.Y).inverse(q)).affine(q);
     */
-
     const xv = F.mul(a.X, b.Y);
     const yu = F.mul(a.Y, b.X);
     res.X = F.add(xv, yu);
@@ -66,13 +65,54 @@ export const addPoint = (a: Point, b: Point): Point => {
     return res;
 }
 
-export const scalarBaseMul = (e: BigInt): Point => {
-    return scalarMul(G, e);
+export const getPreGs = (): Point[] => {
+    var res: Point[] = [];
+    var current: Point = G;
+    for (var i = 0; i < 256; i++) {
+        const tmp = addPoint(current, current);
+        res.push(tmp);
+        current = tmp;
+    }
+    return res;
 }
 
-export const scalarMul = (base: Point, e: BigInt): Point => {
-    let res = zeroPoint();
+export const getPreHs = (): Point[] => {
+    var res: Point[] = [];
+    var current = H;
+    for (var i = 0; i < 256; i++) {
+        const tmp = addPoint(current, current);
+        res.push(tmp);
+        current = tmp;
+    }
+    return res;
+}
 
+export const preGs: Point[] = getPreGs();
+export const preHs: Point[] = getPreHs();
+
+// Double doubles point (x,y) on a twisted Edwards curve with parameters a, d
+// modifies p
+export const doublePoint = (p1: Point): Point => {
+
+    const xx = F.square(p1.X);
+    const yy = F.square(p1.Y);
+    const xy = F.mul(p1.X, p1.Y);
+    var denum = F.sub(yy, xx);
+    var px = F.add(xy, xy);
+    px = F.div(px, denum);
+    const two = F.add(F.one, F.one);
+    denum = F.neg(denum);
+    denum = F.add(denum, two);
+    var py = F.add(xx, yy);
+    py = F.div(py, denum);
+
+
+    return {X: px, Y: py};
+}
+
+export const scalarGMul = (e: BigInt): Point => {
+    let res = zeroPoint();
+    var base = G;
     if (e < BigInt(0)) {
         e = Scalar.neg(e);
         base = negPoint(base);
@@ -81,12 +121,65 @@ export const scalarMul = (base: Point, e: BigInt): Point => {
     let rem = e;
     let exp = base;
 
+    var i = 1;
+    while (!Scalar.isZero(rem)) {
+        if (Scalar.isOdd(rem)) {
+            res = addPoint(res, exp);
+        }
+        exp = preGs[i - 1];
+        rem = Scalar.shiftRight(rem, 1);
+        i++;
+    }
+
+    return res;
+}
+
+export const scalarHMul = (e: BigInt): Point => {
+    let res = zeroPoint();
+    var base = H;
+    if (e < BigInt(0)) {
+        e = Scalar.neg(e);
+        base = negPoint(base);
+    }
+
+    let rem = e;
+    let exp = base;
+
+    var i = 1;
+    while (!Scalar.isZero(rem)) {
+        if (Scalar.isOdd(rem)) {
+            res = addPoint(res, exp);
+        }
+        exp = preHs[i - 1];
+        rem = Scalar.shiftRight(rem, 1);
+        i++;
+    }
+
+    return res;
+}
+
+export const scalarMul = (base: Point, e: BigInt): Point => {
+    if (equal(base, G) && !Scalar.isNegative(e)) {
+        return scalarGMul(e);
+    } else if (equal(base, H) && !Scalar.isNegative(e)) {
+        return scalarHMul(e);
+    }
+
+    let res = zeroPoint();
+
+    if (Scalar.isNegative(e)) {
+        e = Scalar.neg(e);
+        base = negPoint(base);
+    }
+
+    let rem = e;
+    let exp = base;
 
     while (!Scalar.isZero(rem)) {
         if (Scalar.isOdd(rem)) {
             res = addPoint(res, exp);
         }
-        exp = addPoint(exp, exp);
+        exp = doublePoint(exp);
         rem = Scalar.shiftRight(rem, 1);
     }
 
@@ -146,7 +239,7 @@ export const unmarshalPoint = (_buff: Buffer): Point | null => {
 }
 
 export const negPoint = (p: Point): Point => {
-    return { X: F.neg(p.X), Y: p.Y };
+    return {X: F.neg(p.X), Y: p.Y};
 }
 
 export const equal = (a: Point, b: Point): boolean => {
