@@ -1,1 +1,3 @@
 # zecrey-front-crypto
+
+# Deprecated
